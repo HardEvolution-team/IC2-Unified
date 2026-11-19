@@ -1,0 +1,57 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// IC2 Classic relocation.
+//
+// IC2 Classic and IC2 Experimental share the mod id "ic2" and the java packages "ic2.*", so they can not be loaded together.
+// The `relocateClassic` task rewrites the IC2 Classic jar found in libs/ into build/relocated/IC2Classic-relocated.jar
+// (packages ic2.* -> ic2classic.*, mod id ic2 -> ic2classic, assets/ic2 -> assets/ic2classic).
+// Put THAT jar into the mods folder instead of the original IC2 Classic jar.
+// ---------------------------------------------------------------------------------------------------------------------
+
+sourceSets {
+    relocator {
+        java.srcDir 'src/relocator/java'
+    }
+}
+
+dependencies {
+    relocatorImplementation 'org.ow2.asm:asm:9.9'
+    relocatorImplementation 'org.ow2.asm:asm-commons:9.9'
+    relocatorImplementation 'org.ow2.asm:asm-tree:9.9'
+}
+
+def classicJar = fileTree('libs') { include 'IC2Classic*.jar' }
+def expJar = fileTree('libs') { include 'industrialcraft-2*.jar' }
+def relocatedJar = layout.buildDirectory.file('relocated/IC2Classic-relocated.jar')
+
+tasks.register('relocateClassic', JavaExec) {
+    group = 'ic2unified'
+    description = 'Relocates IC2 Classic (libs/IC2Classic*.jar) to the ic2classic namespace'
+    classpath = sourceSets.relocator.runtimeClasspath
+    mainClass = 'com.ded.ic2unified.relocator.ClassicRelocator'
+    inputs.files(classicJar)
+    inputs.files(expJar)
+    outputs.file(relocatedJar)
+    doFirst {
+        if (classicJar.isEmpty()) throw new GradleException('Put IC2Classic-1.12.2-*.jar into libs/')
+        args = [classicJar.singleFile.absolutePath, relocatedJar.get().asFile.absolutePath] +
+                (expJar.isEmpty() ? [] : [expJar.singleFile.absolutePath])
+    }
+}
+
+dependencies {
+    // Both IC2 builds are only needed to compile against. Production jars of 1.12 keep MCP class names,
+    // and we only call IC2's own (unobfuscated) methods, so no remapping is necessary.
+    compileOnly expJar
+    compileOnly files(relocatedJar) { builtBy 'relocateClassic' }
+}
+
+tasks.named('compileJava') { dependsOn 'relocateClassic' }
+
+// Dev runs (runClient / runServer): unimined remaps both IC2 jars to dev mappings.
+// Enable with -Pic2unified.devmods=true (needs relocateClassic to have run once).
+if (project.findProperty('ic2unified.devmods') == 'true') {
+    dependencies {
+        modRuntimeOnly expJar
+        modRuntimeOnly files('build/relocated/IC2Classic-relocated.jar')
+    }
+}

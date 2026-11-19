@@ -1,0 +1,10 @@
+{
+  "required": false,
+  "package": "com.ded.ic2unified.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "target": "@env(DEFAULT)",
+  "mixins": [],
+  "client": [],
+  "server": [],
+  "minVersion": "0.8.7"
+}
