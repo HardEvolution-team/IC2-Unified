@@ -28,3 +28,6 @@ gradle-app.setting
 
 # proprietary mod jars
 libs/*.jar
+
+run/
+build/

@@ -9,7 +9,8 @@
 
 sourceSets {
     relocator {
-        java.srcDir 'src/relocator/java'
+        java.srcDir 'src/main/java'
+        java.include '**/core/ClassicRelocator.java'
     }
 }
 
@@ -27,7 +28,7 @@ tasks.register('relocateClassic', JavaExec) {
     group = 'ic2unified'
     description = 'Relocates IC2 Classic (libs/IC2Classic*.jar) to the ic2classic namespace'
     classpath = sourceSets.relocator.runtimeClasspath
-    mainClass = 'com.ded.ic2unified.relocator.ClassicRelocator'
+    mainClass = 'com.ded.ic2unified.core.ClassicRelocator'
     inputs.files(classicJar)
     inputs.files(expJar)
     outputs.file(relocatedJar)
@@ -52,6 +53,11 @@ tasks.named('compileJava') { dependsOn 'relocateClassic' }
 if (project.findProperty('ic2unified.devmods') == 'true') {
     dependencies {
         modRuntimeOnly expJar
-        modRuntimeOnly files('build/relocated/IC2Classic-relocated.jar')
+        if (project.findProperty('ic2unified.runtimeRelocate') != 'true') modRuntimeOnly files('build/relocated/IC2Classic-relocated.jar')
     }
+}
+
+// AddonRemapper tests run outside of Minecraft and need ASM on the class path
+dependencies {
+    testRuntimeOnly 'org.ow2.asm:asm-commons:9.9'
 }

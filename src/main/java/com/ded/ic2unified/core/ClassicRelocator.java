@@ -1,4 +1,4 @@
-package com.ded.ic2unified.relocator;
+package com.ded.ic2unified.core;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -60,6 +60,13 @@ public final class ClassicRelocator {
         new ClassicRelocator().run(Paths.get(args[0]), Paths.get(args[1]), args.length > 2 ? Paths.get(args[2]) : null);
     }
 
+    /** Relocates {@code in} (original IC2 Classic) into {@code out}; {@code exp} (IC2 Experimental jar) may be null. @return relocated class count */
+    public static int relocate(Path in, Path out, Path exp) throws IOException {
+        ClassicRelocator r = new ClassicRelocator();
+        r.run(in, out, exp);
+        return r.classes.size();
+    }
+
     private void run(Path in, Path out, Path exp) throws IOException {
         if (exp != null) loadExpLang(exp);
         try (JarFile jar = new JarFile(in.toFile())) {
@@ -111,8 +118,8 @@ public final class ClassicRelocator {
         }
         System.out.println("[ic2unified] Relocated " + classes.size() + " classes -> " + out);
         if (!leftovers.isEmpty()) {
-            System.out.println("[ic2unified] String constants starting with 'ic2' that were left untouched (" + leftovers.size() + "):");
-            for (String s : leftovers) System.out.println("    " + s);
+            if (Boolean.getBoolean("ic2unified.debug")) System.out.println("[ic2unified] String constants starting with 'ic2' that were left untouched (" + leftovers.size() + "):");
+            if (Boolean.getBoolean("ic2unified.debug")) for (String s : leftovers) System.out.println("    " + s);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.ded.ic2unified;
 
+import com.ded.ic2unified.energy.ElectricItemBridge;
 import com.ded.ic2unified.energy.EnergyBridge;
 import com.ded.ic2unified.recipe.MaterialUnifier;
 import com.ded.ic2unified.recipe.RecipeConflictResolver;
@@ -34,6 +35,10 @@ public class IC2Unified {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         WorldGenFilter.apply();
+        if (UnifiedConfig.energy.bridgeElectricItems) {
+            ElectricItemBridge.register();
+            LOGGER.info("Electric item bridge between IC2 Experimental and IC2 Classic enabled");
+        }
     }
 
     @Mod.EventHandler

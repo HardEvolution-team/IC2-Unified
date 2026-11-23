@@ -31,6 +31,11 @@ public final class UnifiedConfig {
         @Config.Comment("Also mirror cables (conductors). Without it only machines/generators/storages adjacent to a cable "
                 + "of the other mod connect, cables of different mods do not connect to each other.")
         public boolean mirrorConductors = true;
+
+        @Config.Comment("Electric items (tools, armor, batteries) of one IC2 build can be charged / discharged by "
+                + "machines, storages and charging armor of the other one.")
+        @Config.RequiresMcRestart
+        public boolean bridgeElectricItems = true;
     }
 
     public enum ConflictPolicy {

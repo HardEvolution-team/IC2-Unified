@@ -29,15 +29,32 @@ Experimental's texts); an `ic2classic.*` copy of every `ic2.*` key is kept.
 
 Everything is configurable in `config/ic2unified.cfg`.
 
-## Building / installing
-1. Put `IC2Classic-1.12.2-*.jar` and `industrialcraft-2-*.jar` into `libs/` (they are git-ignored).
-2. `gradlew build` – also runs `relocateClassic`.
-3. Mods folder: `industrialcraft-2-2.8.222-ex112.jar`, `build/relocated/IC2Classic-relocated.jar`
-   (**not** the original Classic jar) and `build/libs/ic2unified-1.0.0.jar`.
+## IC2 Classic addons
+Addons made for IC2 Classic reference `ic2.*` and the mod id `ic2`, which now belong to Experimental.
+Put such addons into `<game dir>/ic2classic-addons/` (**not** `mods/`). On startup the IC2 Unified coremod rewrites them
+(`ic2.*` -> `ic2classic.*`, `"ic2"` / `required-after:ic2` -> `ic2classic`, `ic2:` resources, Classic fluid and
+API names, reflective class names), stores the result in `ic2unified/addon-cache/` and adds it to the class path, where
+Forge loads it as a normal mod. Only new or changed jars are processed (cached by hash).
+The folder can be changed with `-Dic2unified.addonsDir=<path>`.
 
-Dev run with both mods: `gradlew runServer -Pic2unified.devmods=true` (or `runClient`).
+## Installing
+1. `mods/`: **IC2 Experimental** (`industrialcraft-2-2.8.222-ex112.jar`) and `ic2unified-<version>.jar`.
+2. `ic2classic-addons/` (next to `mods/`, created on first start): the **original, unmodified** `IC2Classic-1.12.2-1.5.15.jar`
+   downloaded from its CurseForge page. **Not** into `mods/`.
+3. Start the game. The IC2 Unified coremod relocates Classic on your machine into `ic2unified/classic-cache/` (once,
+   cached by hash) and loads it. Nothing from IC2 Classic or IC2 Experimental is shipped with this mod.
+
+## Building
+1. Put `IC2Classic-1.12.2-*.jar` and `industrialcraft-2-*.jar` into `libs/` (they are git-ignored).
+2. `gradlew build` (compiles against a build-time relocated Classic, `build/relocated/`).
+Dev run: `gradlew runServer -Pic2unified.devmods=true` (prebuilt relocated jar) or add `-Pic2unified.runtimeRelocate=true`
+and put the original Classic jar into `run/server/ic2classic-addons/` to test the runtime relocation.
 
 ## Known limitations
 * Worlds that already contain IC2 Classic blocks lose them (registry names changed `ic2:` -> `ic2classic:`).
 * Classic fluids are separate from Experimental fluids (different names).
-* IC2 Classic addons compiled against `ic2.core`/`ic2.api.classic` of Classic will not work with the relocated jar.
+* Coremod addons of IC2 Classic are not supported by the addon loader.
+
+## License
+HardEvolution Restricted Source-Available License (HE-RSAL) 1.1 — see `LICENSE.en.md` / `LICENSE.ru.md`.
+Covers only this project's own code. IC2 Experimental and IC2 Classic belong to their authors.
