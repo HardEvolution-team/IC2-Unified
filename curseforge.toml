@@ -1,4 +1,4 @@
-project_id = 0
+project_id = 1825658
 jar = "build/libs/ic2unified-1.1.0.jar"
 changelog = "CHANGELOG.md"
 changelog_type = "markdown"
